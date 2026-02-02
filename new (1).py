@@ -740,7 +740,14 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         # PART 4: Dynamic annotation color based on cell value
         # Calculate midpoint for color threshold
         pivot_values = pivot.values.flatten()
-        midpoint = np.median(pivot_values[pivot_values > 0]) if len(pivot_values[pivot_values > 0]) > 0 else pivot_values.max() / 2
+        # Handle edge cases: empty array or all zeros/negatives
+        positive_values = pivot_values[pivot_values > 0]
+        if len(positive_values) > 0:
+            midpoint = np.median(positive_values)
+        elif pivot_values.size > 0:
+            midpoint = np.max(pivot_values) / 2 if np.max(pivot_values) > 0 else 0
+        else:
+            midpoint = 0
         
         # Create custom text annotations with dynamic colors
         text_values = []
@@ -759,14 +766,12 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             text_values.append(row_text)
             text_colors.append(row_colors)
         
+        # Create heatmap without text (we'll add it via annotations)
         heat_fig = go.Figure(data=go.Heatmap(
             z=pivot.values,
             x=pivot.columns,
             y=pivot.index,
             colorscale="Blues",
-            text=text_values,
-            texttemplate="%{text}",
-            textfont=dict(size=11, family="Arial Black"),  # Increased font weight
             hovertemplate="Country: %{y}<br>Product: %{x}<br>Sales: ₹%{z:,.0f}<extra></extra>",
             colorbar=dict(
                 title=dict(text="Sales", side="right"),
@@ -813,8 +818,6 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             height=dynamic_height,
             showlegend=False
         )
-        # Remove default text from heatmap since we're using annotations
-        heat_fig.update_traces(text=None, texttemplate=None)
 
         # ---------- PIE ----------
         # Validate pie_mode input

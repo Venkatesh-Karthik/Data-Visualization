@@ -1048,20 +1048,10 @@ label {
 
 /* KPI card explicit stacking context - only targets the main glass-kpi class */
 .glass-kpi {
-    /* z-index already set to 10 at line 269 */
+    /* z-index already set to var(--z-glass-panels) in main definition */
 }
 
 /* Ensure chart panels stay below popups */
 .glass-chart-panel {
     /* z-index already managed at component level, inherits from natural stacking */
-}
-
-/* Ensure glass navigation stays below popups */
-.glass-nav {
-    /* z-index already managed above with var(--z-glass-panels) */
-}
-
-/* Ensure upload section stays below popups */
-.glass-upload {
-    /* z-index already managed above with var(--z-interactive) */
 }
