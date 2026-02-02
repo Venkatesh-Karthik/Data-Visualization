@@ -650,7 +650,7 @@
 /* Enhanced Date Picker Styling */
 .glass-date-picker {
     position: relative;
-    z-index: 999;
+    /* Note: z-index intentionally lower than popup (1000) since popup uses position: fixed and breaks out of parent stacking context */
 }
 
 .glass-date-picker .DateInput {
@@ -930,16 +930,14 @@ label {
     position: relative;
 }
 
-/* KPI card explicit stacking context */
-.kpi-card,
-[class*="kpi"] {
-    position: relative;
-    z-index: 10;
+/* KPI card explicit stacking context - only targets the main glass-kpi class */
+.glass-kpi {
+    /* z-index already set to 10 at line 269 */
 }
 
 /* Ensure chart panels stay below popups */
 .glass-chart-panel {
-    z-index: 5;
+    /* z-index already managed at component level, inherits from natural stacking */
 }
 
 /* Ensure glass navigation stays below popups */
