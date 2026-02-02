@@ -233,6 +233,7 @@
         0 12px 40px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
+    z-index: 5;
 }
 
 .glass-capsule {
@@ -267,6 +268,7 @@
     border-radius: 20px;
     padding: calc(var(--spacing-unit) * 1.2);
     position: relative;
+    z-index: 10;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -646,6 +648,11 @@
 }
 
 /* Enhanced Date Picker Styling */
+.glass-date-picker {
+    position: relative;
+    z-index: 999;
+}
+
 .glass-date-picker .DateInput {
     padding: 8px 12px !important;
 }
@@ -675,7 +682,12 @@
     display: none !important;
 }
 
-/* Calendar popup container - glassmorphic dark background */
+/* ============================================
+   DATE PICKER POPUP OVERLAY FIX
+   Critical z-index and positioning for proper layering
+   ============================================ */
+
+/* Calendar popup container - glassmorphic dark background with proper stacking */
 /* High specificity to override react-dates defaults */
 .DayPicker,
 .DayPicker__horizontal,
@@ -683,15 +695,17 @@
 .DayPicker_portal__horizontal,
 div.DayPicker,
 div.DayPicker__horizontal {
-    background: rgba(20, 20, 30, 0.98) !important;
+    background: rgba(10, 15, 30, 0.95) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 18px !important;
     box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 20px 60px rgba(0, 0, 0, 0.6),
         0 0 30px rgba(59, 130, 246, 0.2) !important;
     padding: 16px !important;
+    z-index: 1000 !important;
+    position: relative !important;
 }
 
 .DayPicker_transitionContainer,
@@ -715,27 +729,31 @@ div.DayPicker__horizontal {
     background: transparent !important;
 }
 
-/* Ensure calendar container has dark background */
+/* Ensure calendar container has dark background and proper z-index */
 .DateRangePicker_picker,
 .DateRangePicker_picker__horizontal,
 .SingleDatePicker_picker,
 .SingleDatePicker_picker__horizontal,
 div.DateRangePicker_picker,
 div.SingleDatePicker_picker {
-    background: rgba(20, 20, 30, 0.98) !important;
+    background: rgba(10, 15, 30, 0.95) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 20px 60px rgba(0, 0, 0, 0.6),
         0 0 30px rgba(59, 130, 246, 0.2) !important;
+    z-index: 1000 !important;
+    position: fixed !important;
+    transition: opacity 0.22s cubic-bezier(.46,.03,.52,.96), transform 0.22s cubic-bezier(.46,.03,.52,.96) !important;
 }
 
 /* Override any white backgrounds in calendar wrapper */
 .DateRangePicker_picker__openDown,
 .SingleDatePicker_picker__openDown {
-    background: rgba(20, 20, 30, 0.98) !important;
+    background: rgba(10, 15, 30, 0.95) !important;
+    z-index: 1000 !important;
 }
 
 /* Make sure calendar month has dark background */
@@ -871,6 +889,7 @@ div.SingleDatePicker_picker {
     backdrop-filter: blur(20px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
+    z-index: 1001 !important;
 }
 
 .Select-option {
@@ -888,4 +907,47 @@ label {
     font-weight: 500 !important;
     margin-bottom: 8px !important;
     display: block;
+}
+
+/* ============================================
+   ADDITIONAL POPUP/PORTAL Z-INDEX FIXES
+   Critical for preventing overlay bugs
+   ============================================ */
+
+/* Ensure all date picker portal containers render above everything */
+.DayPicker_portal__vertical,
+.DateRangePicker_picker__portal,
+.SingleDatePicker_picker__portal,
+[class*="DatePicker"][class*="portal"],
+[class*="DayPicker"][class*="portal"] {
+    z-index: 1000 !important;
+    position: fixed !important;
+}
+
+/* Fix for any wrapper divs that might contain the calendar */
+.DateRangePicker,
+.SingleDatePicker {
+    position: relative;
+}
+
+/* KPI card explicit stacking context */
+.kpi-card,
+[class*="kpi"] {
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure chart panels stay below popups */
+.glass-chart-panel {
+    z-index: 5;
+}
+
+/* Ensure glass navigation stays below popups */
+.glass-nav {
+    z-index: 8;
+}
+
+/* Ensure upload section stays below popups */
+.glass-upload {
+    z-index: 8;
 }
