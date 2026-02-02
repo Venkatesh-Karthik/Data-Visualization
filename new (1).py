@@ -154,6 +154,16 @@ app.layout = html.Div([
             ], className="glass-chart-panel hover-float depth-hover glass-mb")
         ], className="animate-fade-in-up animate-delay-6"),
 
+        # ---------- ANOMALY TIMELINE (PART 6 - New Separate Anomaly Graph) ----------
+        html.Div([
+            html.Div([
+                html.Div("Anomaly Detection Timeline", className="glass-chart-header glass-text-primary"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="anomaly-timeline", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-6-5"),
+
         # ---------- PRODUCT + HEATMAP (Full Width Stacked Glass Panels) ----------
         html.Div([
             html.Div([
@@ -303,6 +313,7 @@ def create_empty_figure(message="No data available"):
         Output("kpi-cards", "children"),
         Output("monthly-trend", "figure"),
         Output("forecast-chart", "figure"),
+        Output("anomaly-timeline", "figure"),  # PART 6: New anomaly graph
         Output("product-sales", "figure"),
         Output("heatmap", "figure"),
         Output("pie-chart", "figure"),
@@ -330,20 +341,20 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
     # Return empty state if no file uploaded
     if contents is None:
         empty_fig = create_empty_figure("Upload a CSV file to get started")
-        return "", "", "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+        return "", "", "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
     
     try:
         # Parse and validate CSV file
         df, parse_error = parse_csv(contents)
         if parse_error:
             empty_fig = create_empty_figure(parse_error)
-            return "", parse_error, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+            return "", parse_error, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
         
         # Validate schema
         is_valid, schema_error = validate_csv_schema(df)
         if not is_valid:
             empty_fig = create_empty_figure(schema_error)
-            return "", schema_error, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+            return "", schema_error, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
         
         # Parse dates with error handling
         try:
@@ -356,13 +367,13 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         except Exception as e:
             error_msg = f"⚠️ Error parsing dates: {str(e)}"
             empty_fig = create_empty_figure(error_msg)
-            return "", error_msg, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+            return "", error_msg, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
         
         # Verify we have data after cleaning
         if df.empty:
             error_msg = "⚠️ No valid data found after processing. Please check your CSV file."
             empty_fig = create_empty_figure(error_msg)
-            return "", error_msg, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+            return "", error_msg, "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
         
         # Generate filter options
         country_opts = [{"label": c, "value": c} for c in sorted(df["Country"].unique())]
@@ -407,7 +418,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 countries, products,
                 start, end,
                 [],
-                empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig,
+                empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig,
                 ""
             )
 
@@ -483,9 +494,15 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
             yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)")
         )
-        trend_fig.update_traces(line_color="#3b82f6", marker=dict(color="#60a5fa", size=8))
+        # PART 5: High contrast colors - Bright Cyan for actual sales
+        trend_fig.update_traces(
+            line=dict(color="#2DD4FF", width=3),
+            marker=dict(color="#2DD4FF", size=8, line=dict(color="#fff", width=1)),
+            line_shape='spline'
+        )
         
         # Add anomaly markers if toggle is on and anomalies exist
+        # Enhanced glow for anomalies
         if show_anomalies and "show" in show_anomalies and len(anomalies) > 0:
             trend_fig.add_trace(go.Scatter(
                 x=anomalies["Month"],
@@ -493,13 +510,13 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 mode="markers+text",
                 marker=dict(
                     color="#ef4444",
-                    size=14,
+                    size=16,
                     symbol="circle",
-                    line=dict(color="#fca5a5", width=2)
+                    line=dict(color="#fca5a5", width=3)
                 ),
                 text=["⚠️ Anomaly"] * len(anomalies),
                 textposition="top center",
-                textfont=dict(color="#ef4444", size=10),
+                textfont=dict(color="#ef4444", size=11, family="Arial Black"),
                 name="Anomalies",
                 hovertemplate="<b>Anomaly Detected</b><br>Month: %{x}<br>Sales: ₹%{y:,.0f}<extra></extra>"
             ))
@@ -583,17 +600,30 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             future_months = []
 
         forecast_fig = go.Figure()
-        forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["Sales"],
-                                          mode="lines+markers", name="Actual",
-                                          line=dict(color="#3b82f6"), marker=dict(color="#60a5fa", size=8)))
+        # PART 5: High contrast colors - Bright Cyan for actual
+        forecast_fig.add_trace(go.Scatter(
+            x=monthly["Month"], y=monthly["Sales"],
+            mode="lines+markers", name="Actual",
+            line=dict(color="#2DD4FF", width=3),
+            marker=dict(color="#2DD4FF", size=8, line=dict(color="#fff", width=1)),
+            line_shape='spline'
+        ))
         if len(monthly) >= 2 and "Trend" in monthly.columns:
-            forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["Trend"],
-                                              mode="lines", name="Trend",
-                                              line=dict(color="#8b5cf6", dash="dash")))
+            # PART 5: Purple dash for trend
+            forecast_fig.add_trace(go.Scatter(
+                x=monthly["Month"], y=monthly["Trend"],
+                mode="lines", name="Trend",
+                line=dict(color="#8B5CF6", dash="dash", width=3)
+            ))
         if future_vals:
-            forecast_fig.add_trace(go.Scatter(x=future_months, y=future_vals,
-                                              mode="lines+markers", name="Forecast",
-                                              line=dict(color="#06b6d4"), marker=dict(color="#22d3ee", size=8)))
+            # PART 5: Bright Teal for forecast
+            forecast_fig.add_trace(go.Scatter(
+                x=future_months, y=future_vals,
+                mode="lines+markers", name="Forecast",
+                line=dict(color="#22D3EE", width=3),
+                marker=dict(color="#22D3EE", size=8, line=dict(color="#fff", width=1)),
+                line_shape='spline'
+            ))
         forecast_fig.update_layout(
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -603,6 +633,90 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
             yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
             legend=dict(bgcolor="rgba(0,0,0,0.3)", bordercolor="rgba(59,130,246,0.3)")
+        )
+
+        # ---------- ANOMALY TIMELINE (PART 6: New Separate Anomaly Graph) ----------
+        anomaly_fig = go.Figure()
+        
+        # Base line for all monthly data with muted color
+        anomaly_fig.add_trace(go.Scatter(
+            x=monthly["Month"],
+            y=monthly["Sales"],
+            mode="lines",
+            name="Sales",
+            line=dict(color="rgba(255,255,255,0.2)", width=2),
+            showlegend=True
+        ))
+        
+        # Add prominent red glow markers only for anomalies
+        if len(anomalies) > 0:
+            anomaly_fig.add_trace(go.Scatter(
+                x=anomalies["Month"],
+                y=anomalies["Sales"],
+                mode="markers",
+                name="Anomalies",
+                marker=dict(
+                    color="#ef4444",
+                    size=18,
+                    symbol="circle",
+                    line=dict(color="#fca5a5", width=3),
+                    # Add glow effect
+                    opacity=0.9
+                ),
+                hovertemplate="<b>⚠️ Anomaly Detected</b><br>Month: %{x}<br>Sales: ₹%{y:,.0f}<extra></extra>"
+            ))
+            
+            # Add threshold bands if we have enough data
+            if len(monthly) >= 3:
+                try:
+                    # Calculate upper and lower thresholds
+                    mean_sales = monthly["Sales"].mean()
+                    std_sales = monthly["Sales"].std()
+                    upper_threshold = mean_sales + 2.5 * std_sales
+                    lower_threshold = max(0, mean_sales - 2.5 * std_sales)
+                    
+                    # Add threshold lines
+                    anomaly_fig.add_trace(go.Scatter(
+                        x=monthly["Month"],
+                        y=[upper_threshold] * len(monthly),
+                        mode="lines",
+                        name="Upper Threshold",
+                        line=dict(color="rgba(239, 68, 68, 0.3)", width=1, dash="dash"),
+                        showlegend=False
+                    ))
+                    
+                    anomaly_fig.add_trace(go.Scatter(
+                        x=monthly["Month"],
+                        y=[lower_threshold] * len(monthly),
+                        mode="lines",
+                        name="Lower Threshold",
+                        line=dict(color="rgba(239, 68, 68, 0.3)", width=1, dash="dash"),
+                        fill='tonexty',
+                        fillcolor='rgba(239, 68, 68, 0.05)',
+                        showlegend=False
+                    ))
+                except Exception:
+                    pass
+        else:
+            # No anomalies message
+            anomaly_fig.add_annotation(
+                text="No anomalies detected",
+                xref="paper", yref="paper",
+                x=0.5, y=0.5,
+                showarrow=False,
+                font=dict(size=14, color="rgba(16, 185, 129, 0.8)")
+            )
+        
+        anomaly_fig.update_layout(
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="rgba(255,255,255,0.8)"),
+            margin=dict(l=20, r=20, t=20, b=20),
+            xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)", title="Month"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)", title="Sales"),
+            legend=dict(bgcolor="rgba(0,0,0,0.3)", bordercolor="rgba(59,130,246,0.3)"),
+            hovermode='closest'
         )
 
         # ---------- PRODUCT SALES ----------
@@ -622,7 +736,62 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         # ---------- HEATMAP ----------
         pivot = pd.pivot_table(fdf, values="Sales", index="Country",
                                columns="Product", aggfunc="sum", fill_value=0)
-        heat_fig = px.imshow(pivot, text_auto=".0f", color_continuous_scale="Blues", aspect="auto")
+        
+        # PART 4: Dynamic annotation color based on cell value
+        # Calculate midpoint for color threshold
+        pivot_values = pivot.values.flatten()
+        # Handle edge cases: empty array or all zeros/negatives
+        positive_values = pivot_values[pivot_values > 0]
+        if len(positive_values) > 0:
+            midpoint = np.median(positive_values)
+        elif pivot_values.size > 0:
+            midpoint = np.max(pivot_values) / 2 if np.max(pivot_values) > 0 else 0
+        else:
+            midpoint = 0
+        
+        # Create custom text annotations with dynamic colors
+        text_values = []
+        text_colors = []
+        for i in range(len(pivot.index)):
+            row_text = []
+            row_colors = []
+            for j in range(len(pivot.columns)):
+                value = pivot.iloc[i, j]
+                row_text.append(f"{value:.0f}")
+                # White text for high values, dark navy for low values
+                if value > midpoint:
+                    row_colors.append("#FFFFFF")
+                else:
+                    row_colors.append("#0B1220")
+            text_values.append(row_text)
+            text_colors.append(row_colors)
+        
+        # Create heatmap without text (we'll add it via annotations)
+        heat_fig = go.Figure(data=go.Heatmap(
+            z=pivot.values,
+            x=pivot.columns,
+            y=pivot.index,
+            colorscale="Blues",
+            hovertemplate="Country: %{y}<br>Product: %{x}<br>Sales: ₹%{z:,.0f}<extra></extra>",
+            colorbar=dict(
+                title=dict(text="Sales", side="right"),
+                thickness=15,
+                len=0.7,
+                x=1.02,
+                xpad=10
+            )
+        ))
+        
+        # Apply dynamic text colors
+        for i in range(len(pivot.index)):
+            for j in range(len(pivot.columns)):
+                heat_fig.add_annotation(
+                    x=j, y=i,
+                    text=text_values[i][j],
+                    showarrow=False,
+                    font=dict(size=11, color=text_colors[i][j], family="Arial Black"),
+                    xref="x", yref="y"
+                )
         
         # Dynamic height calculation: 40 pixels per country ensures readable cell sizes
         # Minimum height of 400px for small datasets, scales up for more countries
@@ -645,21 +814,9 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 tickfont=dict(size=11),
                 title=dict(text="Country", standoff=15)
             ),
-            coloraxis=dict(
-                colorbar=dict(
-                    title=dict(text="Sales", side="right"),
-                    thickness=15,
-                    len=0.7,
-                    x=1.02,
-                    xpad=10
-                )
-            ),
             autosize=True,
-            height=dynamic_height
-        )
-        heat_fig.update_traces(
-            textfont=dict(size=10, color="white"),
-            hovertemplate="Country: %{y}<br>Product: %{x}<br>Sales: ₹%{z:,.0f}<extra></extra>"
+            height=dynamic_height,
+            showlegend=False
         )
 
         # ---------- PIE ----------
@@ -720,6 +877,7 @@ Generated On  : {pd.Timestamp.now().strftime("%d-%m-%Y %H:%M:%S")}
             kpis,
             trend_fig,
             forecast_fig,
+            anomaly_fig,  # PART 6: New anomaly timeline
             prod_fig,
             heat_fig,
             pie_fig,
@@ -740,7 +898,7 @@ Generated On  : {pd.Timestamp.now().strftime("%d-%m-%Y %H:%M:%S")}
             [], [],
             None, None,
             [],
-            empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig,
+            empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig,
             ""
         )
 

@@ -24,26 +24,36 @@
     --text-secondary: rgba(255, 255, 255, 0.7);
     --text-muted: rgba(255, 255, 255, 0.5);
     
-    /* Spacing */
+    /* PART 1: Spacing grid system (8px micro, 24px section) */
+    --spacing-micro: 8px;
     --spacing-unit: 24px;
+    
+    /* PART 1: Z-index layer system */
+    --z-background: 0;
+    --z-glass-panels: 10;
+    --z-interactive: 20;
+    --z-popups: 1050;
+    --z-modals: 2000;
 }
 
 /* ============================================
    BASE GLASS CARD SYSTEM
+   PART 1: Standardized border, shadow depth
    ============================================ */
 
 .glass-card {
     background: var(--glass-base);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border opacity */
     border-radius: 24px;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.4),  /* PART 1: Consistent shadow depth */
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: var(--z-glass-panels);  /* PART 1: Layer 1 */
 }
 
 .glass-card::before {
@@ -95,21 +105,23 @@
 
 /* ============================================
    FLOATING NAVIGATION GLASS
+   PART 1: Consistent padding and z-index
    ============================================ */
 
 .glass-nav {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border */
     border-radius: 20px;
-    padding: var(--spacing-unit);
+    padding: var(--spacing-unit);  /* PART 1: 24px spacing */
     margin-bottom: calc(var(--spacing-unit) * 1.5);
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 8px 32px rgba(0, 0, 0, 0.4),  /* PART 1: Consistent shadow */
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
+    z-index: var(--z-glass-panels);  /* PART 1: Layer 1 */
 }
 
 .glass-nav::before {
@@ -150,9 +162,7 @@
 
 /* ============================================
    HOLOGRAPHIC UPLOAD ZONE
-   Z-index: 9 (between background layers and card content)
-   Rationale: Upload needs to be interactive and above background effects,
-   but doesn't need full card-level elevation since it's a temporary interaction
+   PART 1: Z-index Layer 2 (Interactive Controls)
    ============================================ */
 
 .glass-upload {
@@ -166,8 +176,8 @@
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    pointer-events: auto; /* Enable pointer events for drag and drop */
-    z-index: 9; /* Above background (0) but below cards (10) - temporary interaction layer */
+    pointer-events: auto;
+    z-index: var(--z-interactive);  /* PART 1: Layer 2 */
 }
 
 .glass-upload > * {
@@ -279,27 +289,28 @@
 
 /* ============================================
    COCKPIT GLASS FILTERS
+   PART 1: Consistent border, shadow, z-index
    ============================================ */
 
 .glass-filter-panel {
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border */
     border-radius: 20px;
-    padding: var(--spacing-unit);
+    padding: var(--spacing-unit);  /* PART 1: 24px spacing */
     box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.4),  /* PART 1: Consistent shadow */
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
-    z-index: 5;
+    z-index: var(--z-glass-panels);  /* PART 1: Layer 1 */
 }
 
 .glass-capsule {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border */
     border-radius: 12px;
     padding: 12px 16px;
     transition: all 0.3s ease;
@@ -317,19 +328,23 @@
 
 /* ============================================
    ULTRA-PREMIUM KPI CARDS
+   PART 1: Consistent border, shadow, z-index
    ============================================ */
 
 .glass-kpi {
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(24px) saturate(200%);
     -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border */
     border-radius: 20px;
-    padding: calc(var(--spacing-unit) * 1.2);
+    padding: calc(var(--spacing-unit) * 1.2);  /* PART 1: 24px based spacing */
     position: relative;
-    z-index: 10;
+    z-index: var(--z-glass-panels);  /* PART 1: Layer 1 */
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),  /* PART 1: Consistent shadow */
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .glass-kpi::before {
@@ -430,22 +445,23 @@
 
 /* ============================================
    ELEVATED GLASS CHART PANELS
+   PART 1: Consistent border, shadow, z-index
    ============================================ */
 
 .glass-chart-panel {
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);  /* PART 1: Consistent border */
     border-radius: 20px;
-    padding: var(--spacing-unit);
+    padding: var(--spacing-unit);  /* PART 1: 24px spacing */
     box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.4),  /* PART 1: Consistent shadow */
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10; /* Cards layer */
+    z-index: var(--z-glass-panels);  /* PART 1: Layer 1 */
 }
 
 .glass-chart-panel:hover {
@@ -789,16 +805,16 @@
 .DayPicker_portal__horizontal,
 div.DayPicker,
 div.DayPicker__horizontal {
-    background: rgba(10, 15, 30, 0.95) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
+    backdrop-filter: blur(24px) saturate(180%) !important;  /* PART 9: Stronger blur */
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;  /* PART 9: Stronger border */
     border-radius: 18px !important;
     box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.6),
-        0 0 30px rgba(59, 130, 246, 0.2) !important;
+        0 25px 70px rgba(0, 0, 0, 0.8),  /* PART 9: Stronger shadow */
+        0 0 40px rgba(59, 130, 246, 0.3) !important;
     padding: 16px !important;
-    z-index: 1000 !important;
+    z-index: 1100 !important;  /* PART 9: Higher z-index */
     position: relative !important;
     min-width: 320px !important;
     height: auto !important;
@@ -832,15 +848,15 @@ div.DayPicker__horizontal {
 .SingleDatePicker_picker__horizontal,
 div.DateRangePicker_picker,
 div.SingleDatePicker_picker {
-    background: rgba(10, 15, 30, 0.95) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
+    backdrop-filter: blur(24px) saturate(180%) !important;  /* PART 9: Stronger blur */
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border-radius: 18px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;  /* PART 9: Stronger border */
     box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.6),
-        0 0 30px rgba(59, 130, 246, 0.2) !important;
-    z-index: 1000 !important;
+        0 25px 70px rgba(0, 0, 0, 0.8),  /* PART 9: Stronger shadow */
+        0 0 40px rgba(59, 130, 246, 0.3) !important;
+    z-index: 1100 !important;  /* PART 9: Higher z-index */
     position: fixed !important;
     transition: opacity 0.22s cubic-bezier(.46,.03,.52,.96), transform 0.22s cubic-bezier(.46,.03,.52,.96) !important;
 }
@@ -848,8 +864,8 @@ div.SingleDatePicker_picker {
 /* Override any white backgrounds in calendar wrapper */
 .DateRangePicker_picker__openDown,
 .SingleDatePicker_picker__openDown {
-    background: rgba(10, 15, 30, 0.95) !important;
-    z-index: 1000 !important;
+    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
+    z-index: 1100 !important;  /* PART 9: Higher z-index */
 }
 
 /* Make sure calendar month has dark background */
@@ -981,11 +997,15 @@ div.SingleDatePicker_picker {
 }
 
 .Select-menu-outer {
-    background: rgba(20, 20, 30, 0.95) !important;
-    backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(10, 15, 30, 0.95) !important;  /* PART 2: Dark opaque glass */
+    backdrop-filter: blur(18px) !important;  /* PART 2: Stronger blur */
+    -webkit-backdrop-filter: blur(18px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;  /* PART 2: Stronger border */
     border-radius: 12px !important;
-    z-index: 50 !important; /* Dropdowns layer - above cards (10), below calendar (1000) */
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.7),  /* PART 2: Stronger shadow */
+        0 0 30px rgba(59, 130, 246, 0.3) !important;
+    z-index: 1050 !important; /* PART 9: Higher z-index for better isolation */
 }
 
 .Select-option {
@@ -1016,7 +1036,7 @@ label {
 .SingleDatePicker_picker__portal,
 [class*="DatePicker"][class*="portal"],
 [class*="DayPicker"][class*="portal"] {
-    z-index: 1000 !important;
+    z-index: 1100 !important;  /* PART 9: Higher z-index */
     position: fixed !important;
 }
 
@@ -1028,20 +1048,10 @@ label {
 
 /* KPI card explicit stacking context - only targets the main glass-kpi class */
 .glass-kpi {
-    /* z-index already set to 10 at line 269 */
+    /* z-index already set to var(--z-glass-panels) in main definition */
 }
 
 /* Ensure chart panels stay below popups */
 .glass-chart-panel {
     /* z-index already managed at component level, inherits from natural stacking */
-}
-
-/* Ensure glass navigation stays below popups */
-.glass-nav {
-    z-index: 8;
-}
-
-/* Ensure upload section stays below popups */
-.glass-upload {
-    z-index: 8;
 }
