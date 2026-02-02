@@ -545,11 +545,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         )
         # High contrast colors - Bright Cyan for actual sales
         trend_fig.update_traces(
-            line=dict(
-                color="#22D3EE",
-                width=3,
-                # Add subtle glow effect using plotly's line properties
-            ),
+            line=dict(color="#22D3EE", width=3),
             marker=dict(color="#22D3EE", size=8, line=dict(color="#fff", width=1)),
             line_shape='spline'
         )
@@ -853,8 +849,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                     font=dict(
                         size=12,
                         color=text_colors[i][j],
-                        family="Arial Black",
-                        weight=700  # Increased font weight
+                        family="Arial Black"
                     ),
                     # Add subtle text shadow for maximum readability
                     bgcolor="rgba(0,0,0,0)",

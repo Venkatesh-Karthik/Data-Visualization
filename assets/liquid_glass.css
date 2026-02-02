@@ -1124,19 +1124,15 @@ label {
 /* ============================================
    CHART LINE GLOW EFFECTS FOR HIGH CONTRAST
    Adds subtle glow/blur to chart lines for separation
+   Applied selectively to avoid performance impact
    ============================================ */
 
-/* Chart container glow effects - Applied via Plotly but enhanced with CSS */
-.js-plotly-plot .scatterlayer .trace {
-    filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 6px currentColor);
+/* Subtle glow for chart lines - performance optimized */
+.js-plotly-plot .scatterlayer .trace:hover {
+    filter: drop-shadow(0 0 3px currentColor);
 }
 
-/* Enhance chart readability with subtle backdrop glow */
-.js-plotly-plot .scatterlayer path.js-line {
-    filter: drop-shadow(0 0 2px currentColor);
-}
-
-/* Make sure markers have clear visibility */
-.js-plotly-plot .scatterlayer .point {
+/* Make sure markers have clear visibility on hover */
+.js-plotly-plot .scatterlayer .point:hover {
     filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
 }
