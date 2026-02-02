@@ -11,118 +11,169 @@ import plotly.graph_objects as go
 # ================= APP INIT =================
 app = Dash(
     __name__,
-    external_stylesheets=[dbc.themes.FLATLY]
+    external_stylesheets=[dbc.themes.FLATLY],
+    suppress_callback_exceptions=True
 )
 app.title = "Global Sales Analytics Dashboard"
 
 # ================= LAYOUT =================
-app.layout = dbc.Container(fluid=True, children=[
+app.layout = html.Div([
+    # Background effects
+    html.Div(className="glow-orb glow-orb-1"),
+    html.Div(className="glow-orb glow-orb-2"),
+    html.Div(className="glow-orb glow-orb-3"),
+    html.Div(id="noise-overlay"),
+    html.Div(className="scanlines"),
+    html.Div(className="vignette"),
+    
+    dbc.Container(fluid=True, className="glass-container stagger-container", children=[
 
-    # ---------- HEADER ----------
-    dbc.Row([
-        dbc.Col([
-            html.H2("🌍 Global Sales Analytics Dashboard", className="fw-bold"),
+        # ---------- HEADER (Floating Glass Navigation) ----------
+        html.Div([
+            html.H2("🌍 Global Sales Analytics Dashboard", className="glass-title"),
             html.P("Interactive Business Intelligence & Forecasting System",
-                   className="text-muted")
-        ])
-    ], className="my-3"),
+                   className="glass-subtitle"),
+            html.Div(className="glass-separator")
+        ], className="glass-nav shimmer-container animate-fade-in-up animate-delay-1"),
 
-    # ---------- UPLOAD ----------
-    dbc.Card([
-        dcc.Upload(
-            id="upload-data",
-            children=html.Div([
-                "📤 Drag & Drop or Click to Upload CSV"
-            ]),
-            style={
-                "width": "100%",
-                "height": "60px",
-                "lineHeight": "60px",
-                "borderWidth": "2px",
-                "borderStyle": "dashed",
-                "borderRadius": "10px",
-                "textAlign": "center",
-            },
-            multiple=False
-        ),
-        html.Div(id="upload-status", className="mt-2 text-success")
-    ], body=True, className="mb-4"),
+        # ---------- UPLOAD (Holographic Glass Surface) ----------
+        html.Div([
+            dcc.Upload(
+                id="upload-data",
+                children=html.Div([
+                    html.Span("📤 Drag & Drop or Click to Upload CSV", className="glass-text-primary")
+                ]),
+                style={
+                    "width": "100%",
+                    "height": "80px",
+                    "lineHeight": "80px",
+                    "textAlign": "center",
+                    "cursor": "pointer"
+                },
+                multiple=False,
+                className="pulse-border breathing"
+            ),
+            html.Div(id="upload-status", className="mt-3 glass-text-secondary text-center")
+        ], className="glass-upload glass-mb animate-fade-in-up animate-delay-2"),
 
-    # ---------- FILTERS ----------
-    dbc.Card([
+        # ---------- FILTERS (Cockpit Glass Panel) ----------
+        html.Div([
+            dbc.Row([
+                dbc.Col([
+                    html.Label("Country", className="glass-text-secondary"),
+                    html.Div([
+                        dcc.Dropdown(id="country-filter", multi=True)
+                    ], className="glass-capsule")
+                ], md=3),
+
+                dbc.Col([
+                    html.Label("Product", className="glass-text-secondary"),
+                    html.Div([
+                        dcc.Dropdown(id="product-filter", multi=True)
+                    ], className="glass-capsule")
+                ], md=3),
+
+                dbc.Col([
+                    html.Label("Date Range", className="glass-text-secondary"),
+                    html.Div([
+                        dcc.DatePickerRange(id="date-filter")
+                    ], className="glass-capsule")
+                ], md=3),
+
+                dbc.Col([
+                    html.Label("Forecast Horizon", className="glass-text-secondary"),
+                    html.Div([
+                        dcc.RadioItems(
+                            id="forecast-horizon",
+                            options=[
+                                {"label": "6 Months", "value": 6},
+                                {"label": "12 Months", "value": 12},
+                            ],
+                            value=6,
+                            inline=True,
+                            className="glass-text-primary"
+                        )
+                    ], className="glass-capsule")
+                ], md=3),
+            ], className="g-3")
+        ], className="glass-filter-panel glass-mb animate-fade-in-up animate-delay-3"),
+
+        # ---------- KPIs (Ultra-Premium Fintech Tiles) ----------
+        dbc.Row(id="kpi-cards", className="glass-mb animate-fade-in-up animate-delay-4"),
+
+        # ---------- TREND + FORECAST (Elevated Glass Panels) ----------
         dbc.Row([
             dbc.Col([
-                html.Label("Country"),
-                dcc.Dropdown(id="country-filter", multi=True)
-            ], md=3),
+                html.Div([
+                    html.Div("Monthly Sales Trend", className="glass-chart-header glass-text-primary"),
+                    dcc.Graph(id="monthly-trend", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
+            dbc.Col([
+                html.Div([
+                    html.Div("Sales Forecast", className="glass-chart-header glass-text-primary"),
+                    dcc.Graph(id="forecast-chart", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
+        ], className="glass-mb animate-fade-in-up animate-delay-5"),
+
+        # ---------- PRODUCT + HEATMAP (Elevated Glass Panels) ----------
+        dbc.Row([
+            dbc.Col([
+                html.Div([
+                    html.Div("Product-wise Sales", className="glass-chart-header glass-text-primary"),
+                    dcc.Graph(id="product-sales", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
+            dbc.Col([
+                html.Div([
+                    html.Div("Country vs Product Heatmap", className="glass-chart-header glass-text-primary"),
+                    dcc.Graph(id="heatmap", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
+        ], className="glass-mb animate-fade-in-up animate-delay-6"),
+
+        # ---------- PIE + GROUPED BAR (Elevated Glass Panels) ----------
+        dbc.Row([
+            dbc.Col([
+                html.Div([
+                    html.Div([
+                        dbc.RadioItems(
+                            id="pie-mode",
+                            options=[
+                                {"label": "By Country", "value": "Country"},
+                                {"label": "By Product", "value": "Product"},
+                            ],
+                            value="Country",
+                            inline=True,
+                            className="glass-text-primary"
+                        )
+                    ], className="glass-chart-header"),
+                    dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
 
             dbc.Col([
-                html.Label("Product"),
-                dcc.Dropdown(id="product-filter", multi=True)
-            ], md=3),
+                html.Div([
+                    html.Div("Country vs Product Comparison", className="glass-chart-header glass-text-primary"),
+                    dcc.Graph(id="grouped-bar", config={"displayModeBar": False}),
+                    html.Div(className="chart-depth-overlay")
+                ], className="glass-chart-panel hover-float depth-hover")
+            ], md=6),
+        ], className="glass-mb animate-fade-in-up animate-delay-7"),
 
-            dbc.Col([
-                html.Label("Date Range"),
-                dcc.DatePickerRange(id="date-filter")
-            ], md=3),
-
-            dbc.Col([
-                html.Label("Forecast Horizon"),
-                dcc.RadioItems(
-                    id="forecast-horizon",
-                    options=[
-                        {"label": "6 Months", "value": 6},
-                        {"label": "12 Months", "value": 12},
-                    ],
-                    value=6,
-                    inline=True
-                )
-            ], md=3),
-        ], className="g-3")
-    ], body=True, className="mb-4"),
-
-    # ---------- KPIs ----------
-    dbc.Row(id="kpi-cards", className="mb-4"),
-
-    # ---------- TREND + FORECAST ----------
-    dbc.Row([
-        dbc.Col(dcc.Graph(id="monthly-trend"), md=6),
-        dbc.Col(dcc.Graph(id="forecast-chart"), md=6),
-    ], className="mb-4"),
-
-    # ---------- PRODUCT + HEATMAP ----------
-    dbc.Row([
-        dbc.Col(dcc.Graph(id="product-sales"), md=6),
-        dbc.Col(dcc.Graph(id="heatmap"), md=6),
-    ], className="mb-4"),
-
-    # ---------- PIE + GROUPED BAR ----------
-    dbc.Row([
-        dbc.Col([
-            dbc.RadioItems(
-                id="pie-mode",
-                options=[
-                    {"label": "By Country", "value": "Country"},
-                    {"label": "By Product", "value": "Product"},
-                ],
-                value="Country",
-                inline=True,
-                className="mb-2"
-            ),
-            dcc.Graph(id="pie-chart")
-        ], md=6),
-
-        dbc.Col(dcc.Graph(id="grouped-bar"), md=6),
-    ], className="mb-4"),
-
-    # ---------- REPORT ----------
-    dbc.Card([
-        dbc.CardHeader("📄 Business Summary Report"),
-        dbc.CardBody([
-            html.Pre(id="report-text"),
-            dbc.Button("⬇️ Download Report", id="download-btn", color="primary"),
+        # ---------- REPORT (Glass Terminal) ----------
+        html.Div([
+            html.Div("📄 Business Summary Report", className="glass-terminal-header"),
+            html.Pre(id="report-text", className="terminal-text"),
+            html.Button("⬇️ Download Report", id="download-btn", className="glass-button mt-3"),
             dcc.Download(id="download-report")
-        ])
+        ], className="glass-terminal animate-fade-in-up animate-delay-8")
     ])
 ])
 
@@ -187,26 +238,44 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
 
     # ---------- KPIs ----------
     kpis = [
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("Total Sales"),
-            html.H4(f"₹{fdf['Sales'].sum():,.0f}", className="text-primary fw-bold")
-        ])), md=4),
+        dbc.Col([
+            html.Div([
+                html.Div(className="kpi-glow"),
+                html.H6("Total Sales", className="glass-text-secondary mb-3"),
+                html.H4(f"₹{fdf['Sales'].sum():,.0f}", className="kpi-value")
+            ], className="glass-kpi hover-float light-sweep")
+        ], md=4),
 
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("Total Profit"),
-            html.H4(f"₹{fdf['Profit'].sum():,.0f}", className="text-success fw-bold")
-        ])), md=4),
+        dbc.Col([
+            html.Div([
+                html.Div(className="kpi-glow"),
+                html.H6("Total Profit", className="glass-text-secondary mb-3"),
+                html.H4(f"₹{fdf['Profit'].sum():,.0f}", className="kpi-value")
+            ], className="glass-kpi hover-float light-sweep")
+        ], md=4),
 
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("Avg Discount"),
-            html.H4(f"{fdf['Discount'].mean():.2f}%", className="text-warning fw-bold")
-        ])), md=4),
+        dbc.Col([
+            html.Div([
+                html.Div(className="kpi-glow"),
+                html.H6("Avg Discount", className="glass-text-secondary mb-3"),
+                html.H4(f"{fdf['Discount'].mean():.2f}%", className="kpi-value")
+            ], className="glass-kpi hover-float light-sweep")
+        ], md=4),
     ]
 
     # ---------- MONTHLY TREND ----------
     monthly = fdf.groupby("Month", as_index=False)["Sales"].sum()
-    trend_fig = px.line(monthly, x="Month", y="Sales", markers=True,
-                        title="Monthly Sales Trend")
+    trend_fig = px.line(monthly, x="Month", y="Sales", markers=True)
+    trend_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
+        yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)")
+    )
+    trend_fig.update_traces(line_color="#3b82f6", marker=dict(color="#60a5fa", size=8))
 
     # ---------- FORECAST ----------
     monthly["EMA"] = monthly["Sales"].ewm(span=3).mean()
@@ -224,37 +293,81 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
 
     forecast_fig = go.Figure()
     forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["Sales"],
-                                      mode="lines+markers", name="Actual"))
+                                      mode="lines+markers", name="Actual",
+                                      line=dict(color="#3b82f6"), marker=dict(color="#60a5fa", size=8)))
     forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["EMA"],
-                                      mode="lines", name="Trend"))
+                                      mode="lines", name="Trend",
+                                      line=dict(color="#8b5cf6", dash="dash")))
     forecast_fig.add_trace(go.Scatter(x=future_months, y=future_vals,
-                                      mode="lines+markers", name="Forecast"))
-    forecast_fig.update_layout(title="Sales Forecast")
+                                      mode="lines+markers", name="Forecast",
+                                      line=dict(color="#06b6d4"), marker=dict(color="#22d3ee", size=8)))
+    forecast_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
+        yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
+        legend=dict(bgcolor="rgba(0,0,0,0.3)", bordercolor="rgba(59,130,246,0.3)")
+    )
 
     # ---------- PRODUCT SALES ----------
     prod_fig = px.bar(
         fdf.groupby("Product", as_index=False)["Sales"].sum(),
-        x="Product", y="Sales",
-        title="Product-wise Sales"
+        x="Product", y="Sales"
+    )
+    prod_fig.update_traces(marker_color="#3b82f6")
+    prod_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)")
     )
 
     # ---------- HEATMAP ----------
     pivot = pd.pivot_table(fdf, values="Sales", index="Country",
                            columns="Product", aggfunc="sum")
-    heat_fig = px.imshow(pivot, text_auto=".0f",
-                          title="Country vs Product Heatmap")
+    heat_fig = px.imshow(pivot, text_auto=".0f", color_continuous_scale="Blues")
+    heat_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20)
+    )
 
     # ---------- PIE ----------
     pie_df = fdf.groupby(pie_mode, as_index=False)["Sales"].sum()
-    pie_fig = px.pie(pie_df, values="Sales", names=pie_mode,
-                     hole=0.4, title="Sales Distribution")
+    pie_fig = px.pie(pie_df, values="Sales", names=pie_mode, hole=0.4)
+    pie_fig.update_traces(marker=dict(colors=px.colors.sequential.Blues))
+    pie_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20),
+        legend=dict(bgcolor="rgba(0,0,0,0.3)", bordercolor="rgba(59,130,246,0.3)")
+    )
 
     # ---------- GROUPED BAR ----------
     bar_fig = px.bar(
         pivot.reset_index(),
         x="Country", y=pivot.columns,
-        barmode="group",
-        title="Country vs Product Comparison"
+        barmode="group"
+    )
+    bar_fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="rgba(255,255,255,0.8)"),
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
+        legend=dict(bgcolor="rgba(0,0,0,0.3)", bordercolor="rgba(59,130,246,0.3)")
     )
 
     # ---------- REPORT ----------

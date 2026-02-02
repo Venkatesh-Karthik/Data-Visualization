@@ -1,0 +1,657 @@
+/* ============================================
+   LIQUID GLASS SYSTEM - VisionOS Premium
+   Complete glassmorphism design system
+   ============================================ */
+
+:root {
+    /* Glass colors */
+    --glass-base: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-glow: rgba(59, 130, 246, 0.2);
+    --glass-highlight: rgba(255, 255, 255, 0.15);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    
+    /* Premium fintech colors */
+    --primary-glow: #3b82f6;
+    --secondary-glow: #8b5cf6;
+    --accent-glow: #06b6d4;
+    --success-glow: #10b981;
+    --warning-glow: #f59e0b;
+    --danger-glow: #ef4444;
+    
+    /* Text colors */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    
+    /* Spacing */
+    --spacing-unit: 24px;
+}
+
+/* ============================================
+   BASE GLASS CARD SYSTEM
+   ============================================ */
+
+.glass-card {
+    background: var(--glass-base);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--glass-highlight),
+        transparent
+    );
+    opacity: 0.8;
+}
+
+.glass-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 50% 0%,
+        rgba(255, 255, 255, 0.05),
+        transparent 50%
+    );
+    pointer-events: none;
+}
+
+/* Glass card depth variants */
+.glass-card-shallow {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-card-deep {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   FLOATING NAVIGATION GLASS
+   ============================================ */
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: var(--spacing-unit);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: shimmer 3s infinite;
+}
+
+.glass-separator {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(59, 130, 246, 0.5),
+        transparent
+    );
+    margin: 12px 0;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+/* ============================================
+   HOLOGRAPHIC UPLOAD ZONE
+   ============================================ */
+
+.glass-upload {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px dashed rgba(59, 130, 246, 0.4);
+    border-radius: 20px;
+    padding: calc(var(--spacing-unit) * 1.5);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.glass-upload::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.15) 0%,
+        transparent 50%
+    );
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.glass-upload:hover {
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 
+        0 0 30px rgba(59, 130, 246, 0.3),
+        inset 0 0 30px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.glass-upload::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 2px;
+    background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.3),
+        rgba(139, 92, 246, 0.3),
+        rgba(6, 182, 212, 0.3)
+    );
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.glass-upload:hover::after {
+    opacity: 1;
+}
+
+/* ============================================
+   COCKPIT GLASS FILTERS
+   ============================================ */
+
+.glass-filter-panel {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: var(--spacing-unit);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.glass-capsule {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.glass-capsule:hover,
+.glass-capsule:focus-within {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 
+        0 0 20px rgba(59, 130, 246, 0.2),
+        inset 0 0 10px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   ULTRA-PREMIUM KPI CARDS
+   ============================================ */
+
+.glass-kpi {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: calc(var(--spacing-unit) * 1.2);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-kpi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        transparent
+    );
+    transition: left 0.6s ease;
+}
+
+.glass-kpi:hover::before {
+    left: 100%;
+}
+
+.glass-kpi:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(59, 130, 246, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Animated gradient border for KPI */
+.glass-kpi::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 20px;
+    padding: 2px;
+    background: linear-gradient(
+        135deg,
+        var(--primary-glow),
+        var(--secondary-glow),
+        var(--accent-glow)
+    );
+    background-size: 200% 200%;
+    animation: gradient-rotate 4s ease infinite;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.glass-kpi:hover::after {
+    opacity: 0.6;
+}
+
+/* KPI internal glow */
+.kpi-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.2) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.glass-kpi:hover .kpi-glow {
+    opacity: 1;
+}
+
+/* Gradient numbers for KPI */
+.kpi-value {
+    background: linear-gradient(
+        135deg,
+        #60a5fa,
+        #a78bfa,
+        #22d3ee
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-slide 3s ease infinite;
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+/* ============================================
+   ELEVATED GLASS CHART PANELS
+   ============================================ */
+
+.glass-chart-panel {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: var(--spacing-unit);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-chart-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 16px 50px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(59, 130, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.glass-chart-header {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 1px 10px rgba(59, 130, 246, 0.1);
+}
+
+.chart-depth-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at top right,
+        rgba(59, 130, 246, 0.1),
+        transparent 50%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.glass-chart-panel:hover .chart-depth-overlay {
+    opacity: 1;
+}
+
+/* ============================================
+   GLASS TERMINAL (Report Console)
+   ============================================ */
+
+.glass-terminal {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 16px;
+    padding: var(--spacing-unit);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(6, 182, 212, 0.2),
+        inset 0 0 20px rgba(6, 182, 212, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-terminal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(6, 182, 212, 0.05) 0px,
+        rgba(6, 182, 212, 0.05) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    animation: terminal-scan 8s linear infinite;
+}
+
+.terminal-text {
+    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+    color: rgba(6, 182, 212, 0.95);
+    text-shadow: 
+        0 0 5px rgba(6, 182, 212, 0.5),
+        0 0 10px rgba(6, 182, 212, 0.3);
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.glass-terminal-header {
+    background: rgba(6, 182, 212, 0.1);
+    border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+    padding: 12px 16px;
+    border-radius: 16px 16px 0 0;
+    margin: calc(var(--spacing-unit) * -1) calc(var(--spacing-unit) * -1) var(--spacing-unit);
+    color: rgba(6, 182, 212, 1);
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+/* ============================================
+   GLASS BUTTONS
+   ============================================ */
+
+.glass-button {
+    background: rgba(59, 130, 246, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: var(--text-primary);
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.glass-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.glass-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.glass-button:hover {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 
+        0 0 20px rgba(59, 130, 246, 0.4),
+        inset 0 0 20px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   RESPONSIVE CONTAINER SYSTEM
+   ============================================ */
+
+.glass-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: calc(var(--spacing-unit) * 2);
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 1200px) {
+    .glass-container {
+        max-width: 100%;
+        padding: var(--spacing-unit);
+    }
+}
+
+/* ============================================
+   GRID SYSTEM (24px modular)
+   ============================================ */
+
+.glass-grid {
+    display: grid;
+    gap: var(--spacing-unit);
+}
+
+.glass-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.glass-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.glass-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 992px) {
+    .glass-grid-2,
+    .glass-grid-3,
+    .glass-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+.glass-text-primary {
+    color: var(--text-primary);
+}
+
+.glass-text-secondary {
+    color: var(--text-secondary);
+}
+
+.glass-text-muted {
+    color: var(--text-muted);
+}
+
+.glass-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    background: linear-gradient(
+        135deg,
+        #ffffff,
+        rgba(255, 255, 255, 0.7)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.glass-spacer {
+    height: var(--spacing-unit);
+}
+
+.glass-spacer-lg {
+    height: calc(var(--spacing-unit) * 2);
+}
+
+.glass-mb {
+    margin-bottom: var(--spacing-unit);
+}
+
+.glass-mt {
+    margin-top: var(--spacing-unit);
+}
+
+.text-glow {
+    text-shadow: 0 0 10px currentColor;
+}
+
+/* Dark mode overrides for Dash components */
+.Select-control,
+.DateInput,
+div[role="radiogroup"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+}
+
+.Select-menu-outer {
+    background: rgba(20, 20, 30, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+}
+
+.Select-option {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.Select-option:hover,
+.Select-option.is-focused {
+    background: rgba(59, 130, 246, 0.2) !important;
+}
+
+label {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+    display: block;
+}
