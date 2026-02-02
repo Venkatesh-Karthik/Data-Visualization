@@ -1300,14 +1300,6 @@ div[class*="Select__loading-indicator"] {
     color: rgba(59, 130, 246, 0.8) !important;
 }
 
-/* Ensure dropdown menu stays above everything */
-.Select__menu,
-.Select__menu-portal,
-div[class*="Select__menu"],
-div[class*="Select__menu-portal"] {
-    z-index: 1050 !important;
-}
-
 /* ============================================
    CHART LINE GLOW EFFECTS FOR HIGH CONTRAST
    Adds subtle glow/blur to chart lines for separation
