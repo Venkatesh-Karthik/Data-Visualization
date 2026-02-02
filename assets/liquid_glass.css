@@ -761,7 +761,19 @@
 /* ============================================
    DATE PICKER POPUP OVERLAY FIX
    Critical z-index and positioning for proper layering
+   STRICT CSS NAMESPACE ISOLATION
    ============================================ */
+
+/* Namespace all react-datepicker variants for strict isolation */
+.react-datepicker,
+.react-datepicker__portal,
+.react-datepicker__wrapper,
+.react-datepicker-popper,
+div[class*="react-datepicker"],
+div[class*="DatePicker"],
+div[class*="DayPicker"] {
+    /* Prevent any global CSS from leaking into calendar */
+}
 
 /* Reset any global table styles that might interfere with calendar grid */
 .DayPicker table,
@@ -771,7 +783,11 @@
 .CalendarMonth_table,
 .CalendarMonth_table tbody,
 .CalendarMonth_table tr,
-.CalendarMonth_table td {
+.CalendarMonth_table td,
+.react-datepicker table,
+.react-datepicker tbody,
+.react-datepicker tr,
+.react-datepicker td {
     display: table !important;
     border-collapse: collapse !important;
     width: auto !important;
@@ -797,7 +813,7 @@
     text-align: center !important;
 }
 
-/* Calendar popup container - glassmorphic dark background with proper stacking */
+/* Calendar popup container - HIGH OPACITY glassmorphic dark background */
 /* High specificity to override react-dates defaults */
 .DayPicker,
 .DayPicker__horizontal,
@@ -805,17 +821,17 @@
 .DayPicker_portal__horizontal,
 div.DayPicker,
 div.DayPicker__horizontal {
-    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
-    backdrop-filter: blur(24px) saturate(180%) !important;  /* PART 9: Stronger blur */
+    background: rgba(8, 12, 25, 0.96) !important;  /* HIGH OPACITY - NO LOW OPACITY GLASS */
+    backdrop-filter: blur(24px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;  /* PART 9: Stronger border */
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 18px !important;
     box-shadow: 
-        0 25px 70px rgba(0, 0, 0, 0.8),  /* PART 9: Stronger shadow */
+        0 25px 70px rgba(0, 0, 0, 0.8),
         0 0 40px rgba(59, 130, 246, 0.3) !important;
     padding: 16px !important;
-    z-index: 1100 !important;  /* PART 9: Higher z-index */
-    position: relative !important;
+    z-index: 1100 !important;
+    position: fixed !important;  /* Use fixed to break out of parent stacking */
     min-width: 320px !important;
     height: auto !important;
 }
@@ -848,24 +864,27 @@ div.DayPicker__horizontal {
 .SingleDatePicker_picker__horizontal,
 div.DateRangePicker_picker,
 div.SingleDatePicker_picker {
-    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
-    backdrop-filter: blur(24px) saturate(180%) !important;  /* PART 9: Stronger blur */
+    background: rgba(8, 12, 25, 0.96) !important;  /* HIGH OPACITY - NO LOW OPACITY GLASS */
+    backdrop-filter: blur(24px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border-radius: 18px !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;  /* PART 9: Stronger border */
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 
-        0 25px 70px rgba(0, 0, 0, 0.8),  /* PART 9: Stronger shadow */
+        0 25px 70px rgba(0, 0, 0, 0.8),
         0 0 40px rgba(59, 130, 246, 0.3) !important;
-    z-index: 1100 !important;  /* PART 9: Higher z-index */
-    position: fixed !important;
+    z-index: 1100 !important;
+    position: fixed !important;  /* CRITICAL: Use fixed to break out of parent overflow/transform */
     transition: opacity 0.22s cubic-bezier(.46,.03,.52,.96), transform 0.22s cubic-bezier(.46,.03,.52,.96) !important;
+    /* Prevent parent transform/overflow from clipping popup */
+    transform: none !important;
+    will-change: auto !important;
 }
 
 /* Override any white backgrounds in calendar wrapper */
 .DateRangePicker_picker__openDown,
 .SingleDatePicker_picker__openDown {
-    background: rgba(10, 15, 30, 0.98) !important;  /* PART 9: More opaque */
-    z-index: 1100 !important;  /* PART 9: Higher z-index */
+    background: rgba(8, 12, 25, 0.96) !important;  /* HIGH OPACITY */
+    z-index: 1100 !important;
 }
 
 /* Make sure calendar month has dark background */
@@ -997,25 +1016,71 @@ div.SingleDatePicker_picker {
 }
 
 .Select-menu-outer {
-    background: rgba(10, 15, 30, 0.95) !important;  /* PART 2: Dark opaque glass */
-    backdrop-filter: blur(18px) !important;  /* PART 2: Stronger blur */
-    -webkit-backdrop-filter: blur(18px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;  /* PART 2: Stronger border */
+    background: rgba(8, 12, 25, 0.96) !important;  /* HIGH OPACITY - NO LOW OPACITY GLASS */
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.25) !important;  /* STRONGER BORDER */
     border-radius: 12px !important;
     box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.7),  /* PART 2: Stronger shadow */
-        0 0 30px rgba(59, 130, 246, 0.3) !important;
-    z-index: 1050 !important; /* PART 9: Higher z-index for better isolation */
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(59, 130, 246, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    z-index: 1050 !important;
 }
 
 .Select-option {
     background: transparent !important;
     color: var(--text-primary) !important;
+    padding: 10px 12px !important;
+    transition: all 0.2s ease !important;
 }
 
 .Select-option:hover,
 .Select-option.is-focused {
-    background: rgba(59, 130, 246, 0.2) !important;
+    background: rgba(59, 130, 246, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.Select-option.is-selected {
+    background: rgba(59, 130, 246, 0.5) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Strengthen filter capsule backgrounds */
+.glass-capsule {
+    background: rgba(8, 12, 25, 0.7) !important;  /* STRONGER BACKGROUND */
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;  /* STRONGER BORDER */
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.glass-capsule:hover,
+.glass-capsule:focus-within {
+    background: rgba(8, 12, 25, 0.85) !important;  /* EVEN STRONGER ON HOVER */
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    box-shadow: 
+        0 0 20px rgba(59, 130, 246, 0.3),
+        inset 0 0 10px rgba(59, 130, 246, 0.1) !important;
+    transform: translateY(-1px);
+}
+
+/* Multi-value tags in dropdowns */
+.Select-value {
+    background: rgba(59, 130, 246, 0.4) !important;
+    border: 1px solid rgba(59, 130, 246, 0.6) !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+}
+
+.Select-value-label {
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 label {
@@ -1036,7 +1101,7 @@ label {
 .SingleDatePicker_picker__portal,
 [class*="DatePicker"][class*="portal"],
 [class*="DayPicker"][class*="portal"] {
-    z-index: 1100 !important;  /* PART 9: Higher z-index */
+    z-index: 1100 !important;
     position: fixed !important;
 }
 
@@ -1054,4 +1119,24 @@ label {
 /* Ensure chart panels stay below popups */
 .glass-chart-panel {
     /* z-index already managed at component level, inherits from natural stacking */
+}
+
+/* ============================================
+   CHART LINE GLOW EFFECTS FOR HIGH CONTRAST
+   Adds subtle glow/blur to chart lines for separation
+   ============================================ */
+
+/* Chart container glow effects - Applied via Plotly but enhanced with CSS */
+.js-plotly-plot .scatterlayer .trace {
+    filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 6px currentColor);
+}
+
+/* Enhance chart readability with subtle backdrop glow */
+.js-plotly-plot .scatterlayer path.js-line {
+    filter: drop-shadow(0 0 2px currentColor);
+}
+
+/* Make sure markers have clear visibility */
+.js-plotly-plot .scatterlayer .point {
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
 }
