@@ -1,0 +1,167 @@
+/* ============================================
+   MULTI-LAYER ANIMATED BACKGROUND
+   VisionOS-inspired fintech premium backdrop
+   ============================================ */
+
+:root {
+    --bg-base: #0a0e1a;
+    --bg-gradient-1: #0f1419;
+    --bg-gradient-2: #1a1f2e;
+    --glow-primary: #3b82f6;
+    --glow-secondary: #8b5cf6;
+    --glow-accent: #06b6d4;
+}
+
+/* Base background layer */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: var(--bg-base);
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Animated gradient background */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 40% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+        linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+    animation: gradient-shift 20s ease infinite;
+    z-index: -3;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-5%, 5%) rotate(1deg); }
+    66% { transform: translate(5%, -5%) rotate(-1deg); }
+}
+
+/* Mesh grid overlay */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: mesh-glow 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -2;
+}
+
+@keyframes mesh-glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+/* Floating glow orbs */
+.glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: -1;
+    animation: float-orb 15s ease-in-out infinite;
+}
+
+.glow-orb-1 {
+    top: 10%;
+    left: 20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+}
+
+.glow-orb-2 {
+    top: 60%;
+    right: 15%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
+    animation-delay: -5s;
+}
+
+.glow-orb-3 {
+    bottom: 15%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+    animation-delay: -10s;
+}
+
+@keyframes float-orb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+/* Noise texture overlay */
+#noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/></svg>');
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
+    animation: noise-flicker 0.2s infinite;
+}
+
+@keyframes noise-flicker {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.45; }
+    100% { opacity: 0.4; }
+}
+
+/* Scan lines for premium tech feel */
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 255, 255, 0.02) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: scan 8s linear infinite;
+    opacity: 0.3;
+}
+
+@keyframes scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+}
+
+/* Subtle vignette effect */
+.vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    z-index: 0;
+}
