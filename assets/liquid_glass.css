@@ -140,6 +140,14 @@
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
+/* Enhanced separator for chart panels */
+.glass-chart-panel .glass-separator {
+    margin: 16px 0;
+    box-shadow: 
+        0 0 15px rgba(59, 130, 246, 0.4),
+        0 1px 2px rgba(59, 130, 246, 0.2);
+}
+
 /* ============================================
    HOLOGRAPHIC UPLOAD ZONE
    ============================================ */
@@ -630,6 +638,150 @@
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     color: var(--text-primary) !important;
+}
+
+/* Enhanced Date Picker Styling */
+.glass-date-picker .DateInput {
+    padding: 8px 12px !important;
+}
+
+.glass-date-picker .DateInput_input {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+    border: none !important;
+    padding: 8px !important;
+}
+
+.glass-date-picker .DateInput_input::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.glass-date-picker .DateRangePickerInput {
+    background: transparent !important;
+    border: none !important;
+}
+
+.glass-date-picker .DateRangePickerInput_arrow {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.DateInput_fang {
+    display: none !important;
+}
+
+.CalendarDay__selected,
+.CalendarDay__selected:active,
+.CalendarDay__selected:hover {
+    background: rgba(59, 130, 246, 0.8) !important;
+    border: 1px solid rgba(59, 130, 246, 1) !important;
+    color: white !important;
+}
+
+.CalendarDay__selected_span {
+    background: rgba(59, 130, 246, 0.3) !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
+}
+
+.CalendarDay__hovered_span,
+.CalendarDay__hovered_span:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.DayPickerNavigation_button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+}
+
+.DayPickerNavigation_button:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+.DayPicker_weekHeader {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.CalendarMonth_caption {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+}
+
+.CalendarDay {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.CalendarDay:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+.CalendarDay__blocked_out_of_range {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Glass Segmented Radio Control */
+.glass-radio-segmented {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+.glass-radio-segmented label {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 12px 20px !important;
+    margin: 0 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    min-width: 100px !important;
+}
+
+.glass-radio-segmented label:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+.glass-radio-segmented input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3)) !important;
+    border-color: rgba(59, 130, 246, 0.8) !important;
+    box-shadow: 
+        0 0 20px rgba(59, 130, 246, 0.4),
+        inset 0 0 20px rgba(59, 130, 246, 0.2) !important;
+    transform: translateY(-2px) scale(1.05) !important;
+    font-weight: 600 !important;
+}
+
+.glass-radio-segmented input[type="radio"] {
+    opacity: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+/* Anomaly Toggle Styling */
+#show-anomalies label {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+#show-anomalies input[type="checkbox"] {
+    margin-right: 8px !important;
+    cursor: pointer !important;
+    width: 18px !important;
+    height: 18px !important;
+    accent-color: #3b82f6 !important;
 }
 
 .Select-menu-outer {

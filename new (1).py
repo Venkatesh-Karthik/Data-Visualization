@@ -2,6 +2,7 @@ import base64
 import io
 import pandas as pd
 import numpy as np
+from scipy import stats
 
 from dash import Dash, dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
@@ -48,12 +49,14 @@ app.layout = html.Div([
                     "height": "80px",
                     "lineHeight": "80px",
                     "textAlign": "center",
-                    "cursor": "pointer"
+                    "cursor": "pointer",
+                    "pointerEvents": "auto"
                 },
                 multiple=False,
                 className="pulse-border breathing"
             ),
-            html.Div(id="upload-status", className="mt-3 glass-text-secondary text-center")
+            html.Div(id="upload-status", className="mt-3 glass-text-secondary text-center"),
+            dcc.Loading(id="upload-loading", type="circle", children=html.Div(id="loading-output"))
         ], className="glass-upload glass-mb animate-fade-in-up animate-delay-2"),
 
         # ---------- FILTERS (Cockpit Glass Panel) ----------
@@ -76,8 +79,12 @@ app.layout = html.Div([
                 dbc.Col([
                     html.Label("Date Range", className="glass-text-secondary"),
                     html.Div([
-                        dcc.DatePickerRange(id="date-filter")
-                    ], className="glass-capsule")
+                        dcc.DatePickerRange(
+                            id="date-filter",
+                            display_format="DD/MM/YYYY",
+                            style={"width": "100%"}
+                        )
+                    ], className="glass-capsule glass-date-picker")
                 ], md=3),
 
                 dbc.Col([
@@ -91,7 +98,8 @@ app.layout = html.Div([
                             ],
                             value=6,
                             inline=True,
-                            className="glass-text-primary"
+                            className="glass-text-primary glass-radio-segmented",
+                            labelStyle={"padding": "12px 20px", "cursor": "pointer", "borderRadius": "12px"}
                         )
                     ], className="glass-capsule")
                 ], md=3),
@@ -101,71 +109,84 @@ app.layout = html.Div([
         # ---------- KPIs (Ultra-Premium Fintech Tiles) ----------
         dbc.Row(id="kpi-cards", className="glass-mb animate-fade-in-up animate-delay-4"),
 
-        # ---------- TREND + FORECAST (Elevated Glass Panels) ----------
-        dbc.Row([
-            dbc.Col([
+        # ---------- TREND + FORECAST (Full Width Stacked Glass Panels) ----------
+        html.Div([
+            html.Div([
+                html.Div("Monthly Sales Trend", className="glass-chart-header glass-text-primary"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="monthly-trend", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-5"),
+        
+        html.Div([
+            html.Div([
                 html.Div([
-                    html.Div("Monthly Sales Trend", className="glass-chart-header glass-text-primary"),
-                    dcc.Graph(id="monthly-trend", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
-            dbc.Col([
-                html.Div([
-                    html.Div("Sales Forecast", className="glass-chart-header glass-text-primary"),
-                    dcc.Graph(id="forecast-chart", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
-        ], className="glass-mb animate-fade-in-up animate-delay-5"),
-
-        # ---------- PRODUCT + HEATMAP (Elevated Glass Panels) ----------
-        dbc.Row([
-            dbc.Col([
-                html.Div([
-                    html.Div("Product-wise Sales", className="glass-chart-header glass-text-primary"),
-                    dcc.Graph(id="product-sales", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
-            dbc.Col([
-                html.Div([
-                    html.Div("Country vs Product Heatmap", className="glass-chart-header glass-text-primary"),
-                    dcc.Graph(id="heatmap", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
-        ], className="glass-mb animate-fade-in-up animate-delay-6"),
-
-        # ---------- PIE + GROUPED BAR (Elevated Glass Panels) ----------
-        dbc.Row([
-            dbc.Col([
-                html.Div([
-                    html.Div([
-                        dbc.RadioItems(
-                            id="pie-mode",
-                            options=[
-                                {"label": "By Country", "value": "Country"},
-                                {"label": "By Product", "value": "Product"},
-                            ],
-                            value="Country",
-                            inline=True,
-                            className="glass-text-primary"
+                    html.Span("Sales Forecast", className="glass-text-primary"),
+                    html.Div(id="anomaly-toggle-container", style={"display": "inline-block", "marginLeft": "20px"}, children=[
+                        dcc.Checklist(
+                            id="show-anomalies",
+                            options=[{"label": " Show Anomalies", "value": "show"}],
+                            value=["show"],
+                            className="glass-text-secondary",
+                            style={"display": "inline-block"}
                         )
-                    ], className="glass-chart-header"),
-                    dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
+                    ])
+                ], className="glass-chart-header"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="forecast-chart", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-6"),
 
-            dbc.Col([
+        # ---------- PRODUCT + HEATMAP (Full Width Stacked Glass Panels) ----------
+        html.Div([
+            html.Div([
+                html.Div("Product-wise Sales", className="glass-chart-header glass-text-primary"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="product-sales", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-7"),
+        
+        html.Div([
+            html.Div([
+                html.Div("Country vs Product Heatmap", className="glass-chart-header glass-text-primary"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="heatmap", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-8"),
+
+        # ---------- PIE + GROUPED BAR (Full Width Stacked Glass Panels) ----------
+        html.Div([
+            html.Div([
                 html.Div([
-                    html.Div("Country vs Product Comparison", className="glass-chart-header glass-text-primary"),
-                    dcc.Graph(id="grouped-bar", config={"displayModeBar": False}),
-                    html.Div(className="chart-depth-overlay")
-                ], className="glass-chart-panel hover-float depth-hover")
-            ], md=6),
-        ], className="glass-mb animate-fade-in-up animate-delay-7"),
+                    dbc.RadioItems(
+                        id="pie-mode",
+                        options=[
+                            {"label": "By Country", "value": "Country"},
+                            {"label": "By Product", "value": "Product"},
+                        ],
+                        value="Country",
+                        inline=True,
+                        className="glass-text-primary"
+                    )
+                ], className="glass-chart-header"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-9"),
+
+        html.Div([
+            html.Div([
+                html.Div("Country vs Product Comparison", className="glass-chart-header glass-text-primary"),
+                html.Div(className="glass-separator"),
+                dcc.Graph(id="grouped-bar", config={"displayModeBar": False}),
+                html.Div(className="chart-depth-overlay")
+            ], className="glass-chart-panel hover-float depth-hover glass-mb")
+        ], className="animate-fade-in-up animate-delay-10"),
 
         # ---------- REPORT (Glass Terminal) ----------
         html.Div([
@@ -187,6 +208,7 @@ def parse_csv(contents):
 @app.callback(
     [
         Output("upload-status", "children"),
+        Output("loading-output", "children"),
         Output("country-filter", "options"),
         Output("product-filter", "options"),
         Output("country-filter", "value"),
@@ -210,12 +232,14 @@ def parse_csv(contents):
         Input("date-filter", "end_date"),
         Input("forecast-horizon", "value"),
         Input("pie-mode", "value"),
-    ]
+        Input("show-anomalies", "value"),
+    ],
+    prevent_initial_call=True
 )
-def update_dashboard(contents, countries, products, start, end, horizon, pie_mode):
+def update_dashboard(contents, countries, products, start, end, horizon, pie_mode, show_anomalies):
     if contents is None:
         empty_fig = {}
-        return "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
+        return "", "", [], [], [], [], None, None, [], empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, empty_fig, ""
 
     df = parse_csv(contents)
     df["Order_Date"] = pd.to_datetime(df["Order_Date"])
@@ -237,6 +261,13 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
     ]
 
     # ---------- KPIs ----------
+    # Detect anomalies in monthly sales using Z-score method
+    monthly = fdf.groupby("Month", as_index=False)["Sales"].sum()
+    z_scores = np.abs(stats.zscore(monthly["Sales"]))
+    anomaly_threshold = 2.0  # Standard threshold for Z-score
+    anomalies = monthly[z_scores > anomaly_threshold]
+    anomaly_count = len(anomalies)
+    
     kpis = [
         dbc.Col([
             html.Div([
@@ -244,7 +275,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 html.H6("Total Sales", className="glass-text-secondary mb-3"),
                 html.H4(f"₹{fdf['Sales'].sum():,.0f}", className="kpi-value")
             ], className="glass-kpi hover-float light-sweep")
-        ], md=4),
+        ], md=3),
 
         dbc.Col([
             html.Div([
@@ -252,7 +283,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 html.H6("Total Profit", className="glass-text-secondary mb-3"),
                 html.H4(f"₹{fdf['Profit'].sum():,.0f}", className="kpi-value")
             ], className="glass-kpi hover-float light-sweep")
-        ], md=4),
+        ], md=3),
 
         dbc.Col([
             html.Div([
@@ -260,11 +291,18 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 html.H6("Avg Discount", className="glass-text-secondary mb-3"),
                 html.H4(f"{fdf['Discount'].mean():.2f}%", className="kpi-value")
             ], className="glass-kpi hover-float light-sweep")
-        ], md=4),
+        ], md=3),
+        
+        dbc.Col([
+            html.Div([
+                html.Div(className="kpi-glow"),
+                html.H6("Anomalies", className="glass-text-secondary mb-3"),
+                html.H4(f"{anomaly_count}", className="kpi-value", style={"color": "#ef4444" if anomaly_count > 0 else "#10b981"})
+            ], className="glass-kpi hover-float light-sweep")
+        ], md=3),
     ]
 
     # ---------- MONTHLY TREND ----------
-    monthly = fdf.groupby("Month", as_index=False)["Sales"].sum()
     trend_fig = px.line(monthly, x="Month", y="Sales", markers=True)
     trend_fig.update_layout(
         template="plotly_dark",
@@ -276,6 +314,25 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)")
     )
     trend_fig.update_traces(line_color="#3b82f6", marker=dict(color="#60a5fa", size=8))
+    
+    # Add anomaly markers if toggle is on
+    if "show" in (show_anomalies or []) and len(anomalies) > 0:
+        trend_fig.add_trace(go.Scatter(
+            x=anomalies["Month"],
+            y=anomalies["Sales"],
+            mode="markers+text",
+            marker=dict(
+                color="#ef4444",
+                size=14,
+                symbol="circle",
+                line=dict(color="#fca5a5", width=2)
+            ),
+            text=["⚠️ Anomaly"] * len(anomalies),
+            textposition="top center",
+            textfont=dict(color="#ef4444", size=10),
+            name="Anomalies",
+            hovertemplate="<b>Anomaly Detected</b><br>Month: %{x}<br>Sales: ₹%{y:,.0f}<extra></extra>"
+        ))
 
     # ---------- FORECAST ----------
     monthly["EMA"] = monthly["Sales"].ewm(span=3).mean()
@@ -385,7 +442,8 @@ Generated On  : {pd.Timestamp.now().strftime("%d-%m-%Y %H:%M:%S")}
 """
 
     return (
-        "✅ Data Loaded",
+        "✅ Data Loaded Successfully",
+        "",
         country_opts, product_opts,
         countries, products,
         start, end,
