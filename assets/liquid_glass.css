@@ -163,6 +163,11 @@
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    pointer-events: none; /* Let child elements receive clicks */
+}
+
+.glass-upload > * {
+    pointer-events: auto; /* Re-enable clicks on child elements */
 }
 
 .glass-upload::before {
@@ -668,6 +673,83 @@
 
 .DateInput_fang {
     display: none !important;
+}
+
+/* Calendar popup container - glassmorphic dark background */
+/* High specificity to override react-dates defaults */
+.DayPicker,
+.DayPicker__horizontal,
+.DayPicker_portal,
+.DayPicker_portal__horizontal,
+div.DayPicker,
+div.DayPicker__horizontal {
+    background: rgba(20, 20, 30, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(59, 130, 246, 0.2) !important;
+    padding: 16px !important;
+}
+
+.DayPicker_transitionContainer,
+.DayPicker_transitionContainer__horizontal {
+    background: transparent !important;
+}
+
+.SingleDatePickerInput_calendarIcon,
+.DateRangePickerInput_calendarIcon {
+    padding: 0 !important;
+    margin: 0 8px !important;
+}
+
+.CalendarMonth,
+.CalendarMonth_table {
+    background: transparent !important;
+}
+
+/* Fix for the white overlay issue */
+.DayPicker_focusRegion {
+    background: transparent !important;
+}
+
+/* Ensure calendar container has dark background */
+.DateRangePicker_picker,
+.DateRangePicker_picker__horizontal,
+.SingleDatePicker_picker,
+.SingleDatePicker_picker__horizontal,
+div.DateRangePicker_picker,
+div.SingleDatePicker_picker {
+    background: rgba(20, 20, 30, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Override any white backgrounds in calendar wrapper */
+.DateRangePicker_picker__openDown,
+.SingleDatePicker_picker__openDown {
+    background: rgba(20, 20, 30, 0.98) !important;
+}
+
+/* Make sure calendar month has dark background */
+.CalendarMonthGrid,
+.CalendarMonthGrid__horizontal,
+.CalendarMonthGrid__vertical {
+    background: transparent !important;
+}
+
+/* Override default white background on the wrapper */
+.DayPicker > div,
+.DayPicker_wrapper,
+.DayPicker__withBorder {
+    background: transparent !important;
 }
 
 .CalendarDay__selected,

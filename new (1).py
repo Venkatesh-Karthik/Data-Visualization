@@ -63,11 +63,10 @@ app.layout = html.Div([
                     "height": "80px",
                     "lineHeight": "80px",
                     "textAlign": "center",
-                    "cursor": "pointer",
-                    "pointerEvents": "auto"
+                    "cursor": "pointer"
                 },
                 multiple=False,
-                className="pulse-border breathing"
+                className="pulse-border"
             ),
             html.Div(id="upload-status", className="mt-3 glass-text-secondary text-center"),
             # Error message panel for user feedback
