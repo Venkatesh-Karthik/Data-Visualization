@@ -412,20 +412,30 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             )
 
         # ---------- KPIs ----------
-        # Detect anomalies in monthly sales using Z-score method
+        # Detect anomalies in monthly sales using rolling Z-score method
         monthly = fdf.groupby("Month", as_index=False)["Sales"].sum()
         
-        # Handle edge case: too few data points for Z-score
+        # Handle edge case: too few data points for rolling Z-score
         anomaly_count = 0
         anomalies = pd.DataFrame()
         if len(monthly) >= 3:
             try:
-                z_scores = np.abs(stats.zscore(monthly["Sales"]))
-                anomaly_threshold = 2.0  # Standard threshold for Z-score
-                anomalies = monthly[z_scores > anomaly_threshold]
+                # Rolling Z-score: window=6, threshold=2.5
+                window_size = min(6, len(monthly))  # Use smaller window if less data
+                rolling_mean = monthly["Sales"].rolling(window=window_size, min_periods=1, center=False).mean()
+                rolling_std = monthly["Sales"].rolling(window=window_size, min_periods=1, center=False).std()
+                
+                # Avoid division by zero
+                rolling_std = rolling_std.replace(0, 1)
+                
+                # Calculate rolling Z-scores
+                z_scores = np.abs((monthly["Sales"] - rolling_mean) / rolling_std)
+                anomaly_threshold = 2.5  # Threshold for rolling Z-score
+                anomaly_mask = z_scores > anomaly_threshold
+                anomalies = monthly[anomaly_mask].copy()
                 anomaly_count = len(anomalies)
             except Exception:
-                # If Z-score calculation fails, continue without anomalies
+                # If rolling Z-score calculation fails, continue without anomalies
                 pass
         
         kpis = [
@@ -496,26 +506,72 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
 
         # ---------- FORECAST ----------
         # Ensure we have enough data for forecasting
-        if len(monthly) >= 2:
-            monthly["EMA"] = monthly["Sales"].ewm(span=min(3, len(monthly))).mean()
-            slope = monthly["EMA"].iloc[-1] - monthly["EMA"].iloc[-2]
-
+        if len(monthly) >= 3:
+            # Implement Exponential Smoothing (Holt-Winters inspired) for better forecasting
+            # Use double exponential smoothing to capture level and trend
+            alpha = 0.3  # Level smoothing factor
+            beta = 0.1   # Trend smoothing factor
+            
+            sales_values = monthly["Sales"].values
+            
+            # Initialize level and trend
+            level = sales_values[0]
+            trend = sales_values[1] - sales_values[0] if len(sales_values) > 1 else 0
+            
+            smoothed = [level]
+            trends = [trend]
+            
+            # Apply double exponential smoothing
+            for i in range(1, len(sales_values)):
+                prev_level = level
+                level = alpha * sales_values[i] + (1 - alpha) * (level + trend)
+                trend = beta * (level - prev_level) + (1 - beta) * trend
+                smoothed.append(level)
+                trends.append(trend)
+            
+            monthly["Trend"] = smoothed
+            
             # Validate horizon input
             if horizon is None or not isinstance(horizon, (int, float)) or horizon <= 0:
                 horizon = 6
-
-            future_vals, last = [], monthly["EMA"].iloc[-1]
-            for _ in range(int(horizon)):
-                last += slope
-                future_vals.append(last)
-
+            
+            # Generate forecast using the last level and trend
+            future_vals = []
+            last_level = level
+            last_trend = trend
+            
+            for i in range(1, int(horizon) + 1):
+                forecast_value = last_level + i * last_trend
+                # Ensure forecast doesn't go negative
+                forecast_value = max(0, forecast_value)
+                future_vals.append(forecast_value)
+            
+            future_months = pd.date_range(
+                pd.to_datetime(monthly["Month"].iloc[-1]) + pd.offsets.MonthBegin(1),
+                periods=int(horizon), freq="MS"
+            ).strftime("%Y-%m")
+        elif len(monthly) == 2:
+            # Simple linear projection for 2 data points
+            monthly["Trend"] = monthly["Sales"]
+            
+            if horizon is None or not isinstance(horizon, (int, float)) or horizon <= 0:
+                horizon = 6
+            
+            slope = monthly["Sales"].iloc[1] - monthly["Sales"].iloc[0]
+            future_vals = []
+            last_val = monthly["Sales"].iloc[-1]
+            
+            for i in range(1, int(horizon) + 1):
+                forecast_value = max(0, last_val + i * slope)
+                future_vals.append(forecast_value)
+            
             future_months = pd.date_range(
                 pd.to_datetime(monthly["Month"].iloc[-1]) + pd.offsets.MonthBegin(1),
                 periods=int(horizon), freq="MS"
             ).strftime("%Y-%m")
         else:
             # Not enough data for forecasting
-            monthly["EMA"] = monthly["Sales"]
+            monthly["Trend"] = monthly["Sales"]
             future_vals = []
             future_months = []
 
@@ -523,8 +579,8 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["Sales"],
                                           mode="lines+markers", name="Actual",
                                           line=dict(color="#3b82f6"), marker=dict(color="#60a5fa", size=8)))
-        if len(monthly) >= 2:
-            forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["EMA"],
+        if len(monthly) >= 2 and "Trend" in monthly.columns:
+            forecast_fig.add_trace(go.Scatter(x=monthly["Month"], y=monthly["Trend"],
                                               mode="lines", name="Trend",
                                               line=dict(color="#8b5cf6", dash="dash")))
         if future_vals:
@@ -559,13 +615,38 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         # ---------- HEATMAP ----------
         pivot = pd.pivot_table(fdf, values="Sales", index="Country",
                                columns="Product", aggfunc="sum", fill_value=0)
-        heat_fig = px.imshow(pivot, text_auto=".0f", color_continuous_scale="Blues")
+        heat_fig = px.imshow(pivot, text_auto=".0f", color_continuous_scale="Blues", aspect="auto")
         heat_fig.update_layout(
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="rgba(255,255,255,0.8)"),
-            margin=dict(l=20, r=20, t=20, b=20)
+            font=dict(color="rgba(255,255,255,0.8)", size=12),
+            margin=dict(l=100, r=100, t=40, b=80),
+            xaxis=dict(
+                side="bottom",
+                tickangle=0,
+                title=dict(text="Product", standoff=20),
+                tickfont=dict(size=11)
+            ),
+            yaxis=dict(
+                tickfont=dict(size=11),
+                title=dict(text="Country", standoff=15)
+            ),
+            coloraxis=dict(
+                colorbar=dict(
+                    title=dict(text="Sales", side="right"),
+                    thickness=15,
+                    len=0.7,
+                    x=1.02,
+                    xpad=10
+                )
+            ),
+            autosize=True,
+            height=max(400, len(pivot.index) * 40)  # Dynamic height based on number of countries
+        )
+        heat_fig.update_traces(
+            textfont=dict(size=10, color="white"),
+            hovertemplate="Country: %{y}<br>Product: %{x}<br>Sales: ₹%{z:,.0f}<extra></extra>"
         )
 
         # ---------- PIE ----------
