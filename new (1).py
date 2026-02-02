@@ -316,7 +316,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
     trend_fig.update_traces(line_color="#3b82f6", marker=dict(color="#60a5fa", size=8))
     
     # Add anomaly markers if toggle is on
-    if show_anomalies and "show" in show_anomalies and len(anomalies) > 0:
+    if "show" in (show_anomalies or []) and len(anomalies) > 0:
         trend_fig.add_trace(go.Scatter(
             x=anomalies["Month"],
             y=anomalies["Sales"],
