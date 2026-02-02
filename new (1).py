@@ -4,11 +4,20 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import traceback
+import logging
 
 from dash import Dash, dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
+
+# ================= LOGGING SETUP =================
+# Configure logging for production-ready error tracking
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # ================= APP INIT =================
 app = Dash(
@@ -628,7 +637,7 @@ Generated On  : {pd.Timestamp.now().strftime("%d-%m-%Y %H:%M:%S")}
     except Exception as e:
         # Catch any unexpected errors and display to user
         error_msg = f"⚠️ Unexpected error: {str(e)}"
-        print(f"Dashboard error: {traceback.format_exc()}")  # Log for debugging
+        logger.error(f"Dashboard error: {traceback.format_exc()}")  # Log for debugging
         empty_fig = create_empty_figure(error_msg)
         return (
             "",
@@ -666,7 +675,7 @@ def download_report(n_clicks, text):
         
         return dict(content=text, filename="global_sales_report.txt")
     except Exception as e:
-        print(f"Download error: {str(e)}")
+        logger.error(f"Download error: {str(e)}")
         return None
 
 # ================= RUN =================
@@ -676,10 +685,14 @@ if __name__ == "__main__":
     # - Hot reloading on code changes
     # - Detailed error messages in the browser
     # - Dev tools panel
-    # For production, set debug=False
-    app.run(debug=True, host='0.0.0.0', port=8050)
+    # For production, set debug=False and host='127.0.0.1' or specific IP
+    
+    # DEVELOPMENT mode (use 127.0.0.1 for local development only)
+    app.run(debug=True, host='127.0.0.1', port=8050)
+    
+    # PRODUCTION mode (uncomment for production deployment)
+    # app.run(debug=False, host='127.0.0.1', port=8050)
     
     # Alternative configurations:
-    # app.run(debug=False)  # Production mode
     # app.run(debug=True, dev_tools_hot_reload=False)  # Debug without hot reload
-    # app.run(debug=True, host='127.0.0.1', port=8080)  # Custom host/port
+    # app.run(debug=False, host='0.0.0.0', port=8080)  # Production on all interfaces (use with caution)

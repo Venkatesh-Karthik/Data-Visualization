@@ -41,8 +41,9 @@ python "new (1).py"
 ```
 
 The dashboard will start and be accessible at:
-- Local: http://127.0.0.1:8050
-- Network: http://0.0.0.0:8050
+- Local development: http://127.0.0.1:8050
+
+**Security Note**: By default, the application runs in development mode on localhost (127.0.0.1) only. For production deployment, modify the `app.run()` line to use `debug=False` and configure the host appropriately.
 
 ### CSV Data Format
 
@@ -93,17 +94,19 @@ The dashboard includes comprehensive error handling:
 
 ### Debug Mode
 
-The application runs in debug mode by default. To change this:
+The application runs in debug mode by default for development. To change this:
 
-**Development mode** (with hot reload):
+**Development mode** (local only, secure):
 ```python
-app.run(debug=True, host='0.0.0.0', port=8050)
+app.run(debug=True, host='127.0.0.1', port=8050)
 ```
 
-**Production mode**:
+**Production mode** (disable debug, configure host appropriately):
 ```python
-app.run(debug=False, host='0.0.0.0', port=8050)
+app.run(debug=False, host='127.0.0.1', port=8050)
 ```
+
+⚠️ **Security Warning**: Never use `host='0.0.0.0'` with `debug=True` in production as it exposes debug information on all network interfaces.
 
 ### Project Structure
 
