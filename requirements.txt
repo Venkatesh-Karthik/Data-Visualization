@@ -1,0 +1,15 @@
+# Core Dash dependencies
+dash>=2.14.0
+dash-bootstrap-components>=1.5.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Visualization
+plotly>=5.17.0
+
+# Web server (included with Dash, but explicitly listed)
+Flask>=2.3.0
+Werkzeug>=2.3.0
