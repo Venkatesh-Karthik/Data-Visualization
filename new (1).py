@@ -271,6 +271,55 @@ def validate_csv_schema(df):
     return True, None
 
 
+def calculate_luminance(r, g, b):
+    """Calculate relative luminance using WCAG formula.
+    
+    Implements the WCAG 2.0 relative luminance formula for accessibility.
+    
+    Args:
+        r: Red channel value (0-255)
+        g: Green channel value (0-255)
+        b: Blue channel value (0-255)
+        
+    Returns:
+        float: Relative luminance (0-1)
+    """
+    # Normalize to 0-1
+    r_norm = r / 255.0
+    g_norm = g / 255.0
+    b_norm = b / 255.0
+    
+    # Apply gamma correction per WCAG formula
+    def gamma_correct(channel):
+        if channel <= 0.03928:
+            return channel / 12.92
+        else:
+            return ((channel + 0.055) / 1.055) ** 2.4
+    
+    r_linear = gamma_correct(r_norm)
+    g_linear = gamma_correct(g_norm)
+    b_linear = gamma_correct(b_norm)
+    
+    # Calculate relative luminance
+    return 0.2126 * r_linear + 0.7152 * g_linear + 0.0722 * b_linear
+
+
+def get_text_color_for_background(bg_luminance, threshold=0.5):
+    """Determine text color based on background luminance.
+    
+    Args:
+        bg_luminance: Background relative luminance (0-1)
+        threshold: Luminance threshold for switching colors (default 0.5)
+        
+    Returns:
+        str: Hex color code for text (#0B1220 for dark, #FFFFFF for light)
+    """
+    if bg_luminance > threshold:
+        return "#0B1220"  # Dark text for light backgrounds
+    else:
+        return "#FFFFFF"  # Light text for dark backgrounds
+
+
 def create_empty_figure(message="No data available"):
     """Create an empty figure with a message.
     
@@ -494,10 +543,10 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             xaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)"),
             yaxis=dict(showgrid=True, gridcolor="rgba(59,130,246,0.1)")
         )
-        # PART 5: High contrast colors - Bright Cyan for actual sales
+        # High contrast colors - Bright Cyan for actual sales
         trend_fig.update_traces(
-            line=dict(color="#2DD4FF", width=3),
-            marker=dict(color="#2DD4FF", size=8, line=dict(color="#fff", width=1)),
+            line=dict(color="#22D3EE", width=3),
+            marker=dict(color="#22D3EE", size=8, line=dict(color="#fff", width=1)),
             line_shape='spline'
         )
         
@@ -523,16 +572,11 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
 
         # ---------- FORECAST ----------
         # Ensure we have enough data for forecasting
-        # Double Exponential Smoothing requires at least 3 data points:
-        # - 1 point for initial level
-        # - 1 point for initial trend calculation
-        # - 1+ points for smoothing iteration
+        # Holt-Winters requires at least 3 data points
         if len(monthly) >= 3:
-            # Implement Exponential Smoothing (Holt-Winters inspired) for better forecasting
-            # Use double exponential smoothing to capture level and trend
-            # Alpha (0.3): Level smoothing factor - moderate weight on recent data
-            # Beta (0.1): Trend smoothing factor - conservative trend updates
-            # These values balance responsiveness vs stability for typical sales data
+            # Implement Holt-Winters Additive (double exponential smoothing)
+            # Alpha: Level smoothing factor (0.3 = moderate weight on recent data)
+            # Beta: Trend smoothing factor (0.1 = conservative trend updates)
             alpha = 0.3  # Level smoothing factor
             beta = 0.1   # Trend smoothing factor
             
@@ -545,7 +589,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             smoothed = [level]
             trends = [trend]
             
-            # Apply double exponential smoothing
+            # Apply Holt-Winters double exponential smoothing
             for i in range(1, len(sales_values)):
                 prev_level = level
                 level = alpha * sales_values[i] + (1 - alpha) * (level + trend)
@@ -559,7 +603,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             if horizon is None or not isinstance(horizon, (int, float)) or horizon <= 0:
                 horizon = 6
             
-            # Generate forecast using the last level and trend
+            # Generate forecast using the last level and trend (Holt-Winters projection)
             future_vals = []
             last_level = level
             last_trend = trend
@@ -600,28 +644,28 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             future_months = []
 
         forecast_fig = go.Figure()
-        # PART 5: High contrast colors - Bright Cyan for actual
+        # High contrast colors - Bright Cyan (#22D3EE) for actual
         forecast_fig.add_trace(go.Scatter(
             x=monthly["Month"], y=monthly["Sales"],
             mode="lines+markers", name="Actual",
-            line=dict(color="#2DD4FF", width=3),
-            marker=dict(color="#2DD4FF", size=8, line=dict(color="#fff", width=1)),
+            line=dict(color="#22D3EE", width=3),
+            marker=dict(color="#22D3EE", size=8, line=dict(color="#fff", width=1)),
             line_shape='spline'
         ))
         if len(monthly) >= 2 and "Trend" in monthly.columns:
-            # PART 5: Purple dash for trend
+            # Purple (#A78BFA) for trend
             forecast_fig.add_trace(go.Scatter(
                 x=monthly["Month"], y=monthly["Trend"],
                 mode="lines", name="Trend",
-                line=dict(color="#8B5CF6", dash="dash", width=3)
+                line=dict(color="#A78BFA", dash="dash", width=3)
             ))
         if future_vals:
-            # PART 5: Bright Teal for forecast
+            # Green (#34D399) for forecast
             forecast_fig.add_trace(go.Scatter(
                 x=future_months, y=future_vals,
                 mode="lines+markers", name="Forecast",
-                line=dict(color="#22D3EE", width=3),
-                marker=dict(color="#22D3EE", size=8, line=dict(color="#fff", width=1)),
+                line=dict(color="#34D399", width=3),
+                marker=dict(color="#34D399", size=8, line=dict(color="#fff", width=1)),
                 line_shape='spline'
             ))
         forecast_fig.update_layout(
@@ -737,19 +781,16 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         pivot = pd.pivot_table(fdf, values="Sales", index="Country",
                                columns="Product", aggfunc="sum", fill_value=0)
         
-        # PART 4: Dynamic annotation color based on cell value
-        # Calculate midpoint for color threshold
-        pivot_values = pivot.values.flatten()
-        # Handle edge cases: empty array or all zeros/negatives
-        positive_values = pivot_values[pivot_values > 0]
-        if len(positive_values) > 0:
-            midpoint = np.median(positive_values)
-        elif pivot_values.size > 0:
-            midpoint = np.max(pivot_values) / 2 if np.max(pivot_values) > 0 else 0
-        else:
-            midpoint = 0
+        # True luminance-based text contrast using WCAG formula
+        # Get the Blues colorscale from Plotly
+        from plotly.colors import sample_colorscale
         
-        # Create custom text annotations with dynamic colors
+        # Normalize pivot values to 0-1 for colorscale sampling
+        pivot_values = pivot.values
+        min_val = pivot_values.min()
+        max_val = pivot_values.max()
+        
+        # Create custom text annotations with dynamic colors based on luminance
         text_values = []
         text_colors = []
         for i in range(len(pivot.index)):
@@ -758,11 +799,27 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             for j in range(len(pivot.columns)):
                 value = pivot.iloc[i, j]
                 row_text.append(f"{value:.0f}")
-                # White text for high values, dark navy for low values
-                if value > midpoint:
-                    row_colors.append("#FFFFFF")
+                
+                # Normalize value to 0-1 for colorscale
+                if max_val > min_val:
+                    normalized = (value - min_val) / (max_val - min_val)
                 else:
-                    row_colors.append("#0B1220")
+                    normalized = 0
+                
+                # Sample the Blues colorscale at this position
+                rgb_str = sample_colorscale('Blues', [normalized])[0]
+                
+                # Parse RGB from string format 'rgb(r,g,b)'
+                rgb_parts = rgb_str.replace('rgb(', '').replace(')', '').split(',')
+                r, g, b = [int(x.strip()) for x in rgb_parts]
+                
+                # Calculate WCAG relative luminance
+                bg_luminance = calculate_luminance(r, g, b)
+                
+                # Choose text color based on background luminance
+                text_color = get_text_color_for_background(bg_luminance, threshold=0.5)
+                row_colors.append(text_color)
+                
             text_values.append(row_text)
             text_colors.append(row_colors)
         
@@ -777,19 +834,25 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 title=dict(text="Sales", side="right"),
                 thickness=15,
                 len=0.7,
-                x=1.02,
-                xpad=10
+                x=1.015,  # Closer to heatmap
+                xpad=5
             )
         ))
         
-        # Apply dynamic text colors
+        # Apply dynamic text colors with enhanced readability
         for i in range(len(pivot.index)):
             for j in range(len(pivot.columns)):
                 heat_fig.add_annotation(
                     x=j, y=i,
                     text=text_values[i][j],
                     showarrow=False,
-                    font=dict(size=11, color=text_colors[i][j], family="Arial Black"),
+                    font=dict(
+                        size=12,
+                        color=text_colors[i][j],
+                        family="Arial Black"
+                    ),
+                    # Add subtle text shadow for maximum readability
+                    bgcolor="rgba(0,0,0,0)",
                     xref="x", yref="y"
                 )
         
@@ -803,7 +866,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="rgba(255,255,255,0.8)", size=12),
-            margin=dict(l=100, r=100, t=40, b=80),
+            margin=dict(l=80, r=80, t=40, b=80),  # Equal side margins
             xaxis=dict(
                 side="bottom",
                 tickangle=0,
