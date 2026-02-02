@@ -506,9 +506,16 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
 
         # ---------- FORECAST ----------
         # Ensure we have enough data for forecasting
+        # Double Exponential Smoothing requires at least 3 data points:
+        # - 1 point for initial level
+        # - 1 point for initial trend calculation
+        # - 1+ points for smoothing iteration
         if len(monthly) >= 3:
             # Implement Exponential Smoothing (Holt-Winters inspired) for better forecasting
             # Use double exponential smoothing to capture level and trend
+            # Alpha (0.3): Level smoothing factor - moderate weight on recent data
+            # Beta (0.1): Trend smoothing factor - conservative trend updates
+            # These values balance responsiveness vs stability for typical sales data
             alpha = 0.3  # Level smoothing factor
             beta = 0.1   # Trend smoothing factor
             
@@ -616,6 +623,12 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
         pivot = pd.pivot_table(fdf, values="Sales", index="Country",
                                columns="Product", aggfunc="sum", fill_value=0)
         heat_fig = px.imshow(pivot, text_auto=".0f", color_continuous_scale="Blues", aspect="auto")
+        
+        # Dynamic height calculation: 40 pixels per country ensures readable cell sizes
+        # Minimum height of 400px for small datasets, scales up for more countries
+        PIXELS_PER_ROW = 40  # Height in pixels for each country row
+        dynamic_height = max(400, len(pivot.index) * PIXELS_PER_ROW)
+        
         heat_fig.update_layout(
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -642,7 +655,7 @@ def update_dashboard(contents, countries, products, start, end, horizon, pie_mod
                 )
             ),
             autosize=True,
-            height=max(400, len(pivot.index) * 40)  # Dynamic height based on number of countries
+            height=dynamic_height
         )
         heat_fig.update_traces(
             textfont=dict(size=10, color="white"),

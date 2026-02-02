@@ -150,6 +150,9 @@
 
 /* ============================================
    HOLOGRAPHIC UPLOAD ZONE
+   Z-index: 9 (between background layers and card content)
+   Rationale: Upload needs to be interactive and above background effects,
+   but doesn't need full card-level elevation since it's a temporary interaction
    ============================================ */
 
 .glass-upload {
@@ -164,7 +167,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     pointer-events: auto; /* Enable pointer events for drag and drop */
-    z-index: 9; /* Above background (0) but below cards (10) */
+    z-index: 9; /* Above background (0) but below cards (10) - temporary interaction layer */
 }
 
 .glass-upload > * {
